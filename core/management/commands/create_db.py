@@ -1,6 +1,4 @@
-"""
-Django command to create the database
-"""
+"""Django command to create the database."""
 
 import os
 import time
@@ -32,7 +30,7 @@ class Command(BaseCommand):
         )
 
         # Creating database container
-        self.stdout.write("Creating a database ⏳...")
+        self.stdout.write("Creating a database container ⏳...")
         command = "docker run --name {db_container_id}" \
                   " -e POSTGRES_PASSWORD={db_connection_password}" \
                   " -p {db_connection_port}:{db_connection_port} -d postgres" \
@@ -44,18 +42,21 @@ class Command(BaseCommand):
         os.system(command)
 
         # checking database connection
-        self.stdout.write("checking database ⏳...")
+        # TODO: find a better way to check connection
+        self.stdout.write("checking connection ⏳...")
         is_db_up = False
         while is_db_up is False:
             try:
                 self.check(databases=["default"])
-                self.stdout.write("DB checked ✅")
+                self.stdout.write("Connection established ✅")
                 is_db_up = True
             except (Psycopg2OpError, OperationalError):
-                self.stdout.write("Database unavailable ❌, waiting 1 second...")
+                self.stdout.write("Connection failed ❌, re-trying in 1 second...")
                 time.sleep(1)
-        self.stdout.write("Database available! ✅")
+        self.stdout.write("Connection available! ✅")
 
+        self.stdout.write("Creating the database...")
+        time.sleep(5)
         os.system(
             "docker exec -it {db_container_id} sh -c " \
             "\"psql -U {db_connection_user} -c 'CREATE DATABASE {db_name}'\""
@@ -65,3 +66,4 @@ class Command(BaseCommand):
                 db_name=db_name
             )
         )
+        self.stdout.write("Database created! ✅")

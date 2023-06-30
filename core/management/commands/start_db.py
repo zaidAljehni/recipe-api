@@ -1,6 +1,4 @@
-"""
-Django command to start the database
-"""
+"""Django command to start the database"""
 
 import os
 import time
@@ -21,22 +19,22 @@ class Command(BaseCommand):
         db_container_id = env("DB_CONTAINER_ID")
 
         # Stopping previous running database container if exist
-        self.stdout.write("Stopping previous running database if exist ⏳...")
+        self.stdout.write("Stopping previous running database container if exist ⏳...")
         os.system("docker stop {db_container_id}".format(db_container_id=db_container_id))
 
         # Starting database container
-        self.stdout.write("Waiting for database ⏳...")
+        self.stdout.write("Starting database container ⏳...")
         os.system("docker start {db_container_id}".format(db_container_id=db_container_id))
 
         # Checking database connection
-        self.stdout.write("checking database ⏳...")
+        self.stdout.write("checking connection ⏳...")
         is_db_up = False
         while is_db_up is False:
             try:
                 self.check(databases=["default"])
-                self.stdout.write("DB checked ✅")
+                self.stdout.write("Connection established ✅")
                 is_db_up = True
             except (Psycopg2OpError, OperationalError):
-                self.stdout.write("Database unavailable ❌, waiting 1 second...")
+                self.stdout.write("Connection failed ❌, re-trying in 1 second...")
                 time.sleep(1)
-        self.stdout.write("Database available! ✅")
+        self.stdout.write("Connection available! ✅")

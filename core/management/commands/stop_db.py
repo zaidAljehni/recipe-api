@@ -1,6 +1,4 @@
-"""
-Django command to stop the database
-"""
+"""Django command to stop the database"""
 
 import os
 
@@ -18,5 +16,5 @@ class Command(BaseCommand):
         db_container_id = env("DB_CONTAINER_ID")
 
         # Stopping previous running database container if exist
-        self.stdout.write("Stopping previous running database if exist ⏳...")
+        self.stdout.write("Stopping previous running database container if exist ⏳...")
         os.system("docker stop {db_container_id}".format(db_container_id=db_container_id))
